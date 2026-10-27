@@ -52,11 +52,47 @@ echo "=== 3. 恢复原桌面聚好看（信号源面板宿主） ==="
 enable_pkg "com.jamdeo.tv.vod"
 
 echo ""
-echo "=== 4. 恢复蓝牙（如果是蓝牙遥控器） ==="
+echo "=== 4. 恢复桌面图标类应用（通讯录/日历/时钟/微信电视等） ==="
+for p in \
+  com.android.contacts \
+  com.android.calendar \
+  com.android.wechathci \
+  com.android.browser \
+  com.android.camera2 \
+  com.android.deskclock \
+  com.android.music \
+  com.android.gallery3d \
+  com.android.soundrecorder \
+  com.android.printspooler \
+  com.cvte.tv.at \
+  com.hisense.usbupgrade \
+  com.hisense.infaredcodesettings \
+  fusion.android.tv.demo
+do
+  enable_pkg "$p"
+done
+
+echo ""
+echo "=== 5. 恢复语音助手与会员中心 ==="
+for p in \
+  com.hisense.vidaaassistant \
+  com.keylab.speech.core.vidaa \
+  com.keylab.speech.view.vidaa \
+  com.hisense.tv.aivirtualassistant \
+  com.hisense.voicecontrol \
+  com.hisense.msvoicetome \
+  com.hispeech.ai.area \
+  com.hisense.hitv.hicloud.account
+do
+  enable_pkg "$p"
+done
+
+echo ""
+echo "=== 6. 恢复蓝牙（如果是蓝牙遥控器） ==="
 enable_pkg "com.android.bluetooth"
 
 echo ""
-echo "=== 5. 复位后台限制 ==="
+echo "=== 7. 复位后台限制 ==="
 for p in \
   com.multiscreen.airplay \
   com.android.wechathci \
@@ -70,7 +106,7 @@ do
 done
 
 echo ""
-echo "=== 6. 动画倍率改回 1.0 ==="
+echo "=== 8. 动画倍率改回 1.0 ==="
 for k in window_animation_scale transition_animation_scale animator_duration_scale; do
   tv "settings put global $k 1.0"
   echo "  $k = $(tv "settings get global $k" | tr -d '\r')"

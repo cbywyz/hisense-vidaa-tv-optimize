@@ -113,6 +113,98 @@ adb shell settings put global animator_duration_scale 0.5
 adb shell dumpsys bluetooth_manager | grep -i -E "bonded|name" | head
 ```
 
+## 第六轮：桌面垃圾图标 + 语音助手（2026-10-27 追加）
+
+换 Aerial 之后，桌面上仍会列出系统里所有带 LAUNCHER 入口的应用，其中一大半是电视永远用不到的
+AOSP 残留。这些包停用后**图标直接从桌面消失，进程也不会再起**。
+
+### 6.1 图标类（14 个）
+
+| 包名 | 桌面名称 | 停用影响 |
+| --- | --- | --- |
+| `com.android.contacts` | 通讯录 | 无（电视不打电话） |
+| `com.android.calendar` | 日历 | 无 |
+| `com.android.deskclock` | 时钟 | 闹钟/计时器不可用。**后台实测占 112MB，收益很大** |
+| `com.android.music` | 音乐 | 本地音乐播放没了（媒体中心仍可播） |
+| `com.android.browser` | 浏览器 | 应用内跳网页可能失败（广告已停，日常无感） |
+| `com.android.camera2` | 相机 | 无（无摄像头硬件） |
+| `com.android.gallery3d` | 图库 | 不能看图，U 盘视频仍可用媒体中心播 |
+| `com.android.soundrecorder` | 录音机 | 无 |
+| `com.android.printspooler` | 打印服务 | 无 |
+| `com.android.wechathci` | 微信电视 | 无法用微信投屏/遥控，手机投屏仍可用 Hi投屏 |
+| `com.cvte.tv.at` | （无图标）工厂自动化测试 | 无（售后检测时恢复） |
+| `com.hisense.usbupgrade` | （无图标）U 盘强制升级 | 无法用 U 盘刷固件（我们本来也关了 OTA） |
+| `com.hisense.infaredcodesettings` | （无图标）红外码设置 | 无 |
+| `fusion.android.tv.demo` | （无图标）演示模式 | 无 |
+
+```bash
+for p in com.android.contacts com.android.calendar com.android.wechathci \
+         com.android.browser com.android.camera2 com.android.deskclock \
+         com.android.music com.android.gallery3d com.android.soundrecorder \
+         com.android.printspooler com.cvte.tv.at com.hisense.usbupgrade \
+         com.hisense.infaredcodesettings fusion.android.tv.demo; do
+  adb shell pm disable-user --user 0 $p
+done
+```
+
+### 6.2 语音助手 + 会员中心（8 个，约省 350MB）
+
+这一组是**取舍**，不是纯垃圾——停用后遥控器语音键会失效：
+
+| 包名 | 作用 | 后台实测 |
+| --- | --- | --- |
+| `com.hisense.vidaaassistant` | 小聚助手（语音入口） | 约 71MB |
+| `com.keylab.speech.core.vidaa` | 语音识别核心 | 约 82MB |
+| `com.keylab.speech.view.vidaa` | 语音 UI | 约 69MB |
+| `com.hisense.tv.aivirtualassistant` | AI 虚拟助手 | 约 76MB |
+| `com.hisense.voicecontrol` | 语音控制 | 系统应用 |
+| `com.hisense.msvoicetome` | 语音转文字 | 系统应用 |
+| `com.hispeech.ai.area` | 讯飞语音区域服务 | — |
+| `com.hisense.hitv.hicloud.account` | 会员中心 / 海信账号 | 约 61MB |
+
+```bash
+for p in com.hisense.vidaaassistant com.keylab.speech.core.vidaa \
+         com.keylab.speech.view.vidaa com.hisense.tv.aivirtualassistant \
+         com.hisense.voicecontrol com.hisense.msvoicetome \
+         com.hispeech.ai.area com.hisense.hitv.hicloud.account; do
+  adb shell pm disable-user --user 0 $p
+done
+```
+
+**停用代价**：遥控器「语音」键无响应、语音搜片不可用、海信会员/账号入口消失；
+爱奇艺、云视听极光等第三方 App 的会员与登录**不受影响**。
+想恢复语音，执行：
+
+```bash
+for p in com.hisense.vidaaassistant com.keylab.speech.core.vidaa \
+         com.keylab.speech.view.vidaa com.hisense.tv.aivirtualassistant \
+         com.hisense.voicecontrol com.hisense.msvoicetome \
+         com.hispeech.ai.area com.hisense.hitv.hicloud.account; do
+  adb shell pm enable $p
+done
+adb reboot
+```
+
+### 6.3 停不掉的那个图标：聚好看
+
+桌面上还会留一个「聚好看」图标。它**不能停用**（信号源面板宿主，见
+[05-signal-source.md](05-signal-source.md)），只能在 Aerial 里长按图标 → 隐藏。
+隐藏只是不显示，不影响按遥控器信号源键唤出面板。
+
+### 6.4 本机实测效果
+
+| 指标 | 清理前 | 清理后 |
+| --- | --- | --- |
+| 桌面图标（Aerial 全部应用） | 24 个（含 14 个垃圾） | **8 个** |
+| 已停用包总数 | 16 | **32** |
+| `MemFree` | 52MB | **125MB** |
+| `MemAvailable` | 383MB | **575MB** |
+| zram swap 占用 | 98MB | **0** |
+| 开机到桌面 | 约 30 秒 | 约 28 秒 |
+
+剩下的 8 个图标：云视听极光、Hi投屏、媒体中心、同花顺、当贝市场、当贝助手、聚好看、系统设置。
+（Aerial 自己是桌面，不计入图标列表。）
+
 ## 执行与验证
 
 ```bash
