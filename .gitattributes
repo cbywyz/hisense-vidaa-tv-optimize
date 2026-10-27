@@ -1,0 +1,9 @@
+# 脚本会在 Git Bash / macOS / Linux 上直接执行，CRLF 会导致
+# "bad interpreter" / 参数尾部多 \r，统一强制 LF
+*.sh    text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+LICENSE text eol=lf
+
+* text=auto
+.gitattributes text eol=lf
