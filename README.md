@@ -83,8 +83,8 @@ sh scripts/restore.sh 192.168.3.205
    `android.media.tv.TvInputService`，遥控器上的「信号源」键是聚好看的私有悬浮窗在响应。
    停用聚好看 = 信号源入口彻底消失。见 [docs/05](docs/05-signal-source.md)。
 3. **换桌面只改默认 Home，不要卸载原桌面**，否则信号源和部分系统设置入口会一起消失。
-4. **开机 15 秒广告已消除**（本机实测）。素材虽然放在 `bootad` 分区，但播放是 Android 侧
-   StartupImage / 广告服务发起的：停用 `com.hisense.startupimage` + 把
+4. **开机 15 秒广告已消除**（软重启 + 断电冷启动均已实测）。素材虽然放在 `bootad` 分区，
+   但播放是 Android 侧 StartupImage / 广告服务发起的：停用 `com.hisense.startupimage` + 把
    `persist.sys.video_advert_time` 设为 0 + `com.hisense.service.ad_block=1` 就能拦掉。
    见 [docs/07](docs/07-boot-ad.md)。
 

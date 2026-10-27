@@ -84,8 +84,9 @@ adb shell settings get global com.hisense.service.ad_block  # 1
 StartupImage / 广告服务发起的**，所以「停用 StartupImage + 时长归零 + 广告屏蔽开关」
 这套组合能把 15 秒拦掉，不需要 root。
 
-> 以上是**软重启（`adb reboot`）**验证的结果。如果想更彻底，可以拔掉电源等 10 秒再插上
-> 做一次冷启动确认——冷启动会完整走一遍 bootloader 流程。本机软重启已经不再播放。
+> **断电冷启动也已验证（2026-10-27）**：拔掉电源等 10 秒再插上，完整走一遍 bootloader 流程，
+> 开机依然没有广告、直接进 Aerial。说明时长归零与广告开关是写在持久层的真实生效，
+> 不是软重启的内存态假象。
 
 ## 换机型/换固件的兜底
 
