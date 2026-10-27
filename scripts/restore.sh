@@ -54,6 +54,7 @@ enable_pkg "com.jamdeo.tv.vod"
 echo ""
 echo "=== 4. 恢复桌面图标类应用（通讯录/日历/时钟/微信电视等） ==="
 for p in \
+  com.hisense.systeminfo \
   com.android.contacts \
   com.android.calendar \
   com.android.wechathci \

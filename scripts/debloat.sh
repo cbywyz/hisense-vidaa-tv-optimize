@@ -52,6 +52,7 @@ com.jamdeo.tv.vod
 
 # 第六轮：桌面垃圾图标（停用后图标消失，进程不再启动）
 STAGE4="
+com.hisense.systeminfo
 com.android.contacts
 com.android.calendar
 com.android.wechathci

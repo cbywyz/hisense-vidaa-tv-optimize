@@ -118,10 +118,11 @@ adb shell dumpsys bluetooth_manager | grep -i -E "bonded|name" | head
 换 Aerial 之后，桌面上仍会列出系统里所有带 LAUNCHER 入口的应用，其中一大半是电视永远用不到的
 AOSP 残留。这些包停用后**图标直接从桌面消失，进程也不会再起**。
 
-### 6.1 图标类（14 个）
+### 6.1 图标类（15 个）
 
 | 包名 | 桌面名称 | 停用影响 |
 | --- | --- | --- |
+| `com.hisense.systeminfo` | SystemInfo | 无（售后查版本/温度/内存的调试工具，日常用不到） |
 | `com.android.contacts` | 通讯录 | 无（电视不打电话） |
 | `com.android.calendar` | 日历 | 无 |
 | `com.android.deskclock` | 时钟 | 闹钟/计时器不可用。**后台实测占 112MB，收益很大** |
@@ -138,14 +139,25 @@ AOSP 残留。这些包停用后**图标直接从桌面消失，进程也不会�
 | `fusion.android.tv.demo` | （无图标）演示模式 | 无 |
 
 ```bash
-for p in com.android.contacts com.android.calendar com.android.wechathci \
-         com.android.browser com.android.camera2 com.android.deskclock \
-         com.android.music com.android.gallery3d com.android.soundrecorder \
-         com.android.printspooler com.cvte.tv.at com.hisense.usbupgrade \
-         com.hisense.infaredcodesettings fusion.android.tv.demo; do
+for p in com.hisense.systeminfo com.android.contacts com.android.calendar \
+         com.android.wechathci com.android.browser com.android.camera2 \
+         com.android.deskclock com.android.music com.android.gallery3d \
+         com.android.soundrecorder com.android.printspooler com.cvte.tv.at \
+         com.hisense.usbupgrade com.hisense.infaredcodesettings \
+         fusion.android.tv.demo; do
   adb shell pm disable-user --user 0 $p
 done
 ```
+
+> **踩坑记录：Aerial 里「隐藏」不等于停用。**
+>
+> 第一遍清理时有 6 个包（通讯录、日历、时钟、相机、音乐、浏览器）在 Aerial 里点了隐藏，
+> 桌面上确实看不到了，看起来像处理完；但 `pm list packages -d` 里根本没有它们，
+> **进程照常在后台跑**（时钟仍然占着 112MB）。
+>
+> 教训：**验收标准永远是 `pm list packages -d | grep 包名` 有输出**，
+> 而不是「桌面图标不见了」。Aerial 的隐藏只是画面上不画这个图标，
+> 应用本身照样启动、照样占内存。真正的停用必须走 `pm disable-user`。
 
 ### 6.2 语音助手 + 会员中心（8 个，约省 350MB）
 
@@ -195,8 +207,8 @@ adb reboot
 
 | 指标 | 清理前 | 清理后 |
 | --- | --- | --- |
-| 桌面图标（Aerial 全部应用） | 24 个（含 14 个垃圾） | **8 个** |
-| 已停用包总数 | 16 | **32** |
+| 桌面图标（Aerial 全部应用） | 24 个（含 15 个垃圾） | **8 个** |
+| 已停用包总数 | 16 | **39**（含二次补齐的 6 个「只隐藏没停用」） |
 | `MemFree` | 52MB | **125MB** |
 | `MemAvailable` | 383MB | **575MB** |
 | zram swap 占用 | 98MB | **0** |

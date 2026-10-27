@@ -43,7 +43,7 @@ ADB         192.168.3.205:5555（persist.adb.tcp.port=5555，重启后仍可连�
 | MemAvailable | 约 383MB | **575MB** |
 | zram swap 占用 | 42MB | **0** |
 | 常驻第三方进程 | 15 个 | **7–8 个** |
-| 已停用包 | 0 | **32 个** |
+| 已停用包 | 0 | **39 个** |
 | 桌面图标 | 24 个 | **8 个** |
 | 广告/推送/埋点服务 | 全部在跑 | 全部停用 |
 | Home 键 | 聚好看（含广告位） | Aerial |
@@ -75,7 +75,7 @@ sh scripts/restore.sh 192.168.3.205
 **执行顺序很重要**：`debloat.sh 3` 会停用聚好看桌面，务必先在 Aerial 里确认能正常当桌面，
 否则可能出现「开机黑屏、没有桌面」的局面（救法见 [docs/06](docs/06-troubleshooting.md)）。
 
-## 三条最重要的结论
+## 几条最重要的结论
 
 1. **ADB 走无线，不要折腾有线。** 同一台电视、同一个端口，网线插着时 `adb connect` 连不上，
    改用 Wi-Fi 立刻成功。具体实测与排查见 [docs/01](docs/01-adb.md)。
@@ -87,6 +87,8 @@ sh scripts/restore.sh 192.168.3.205
    但播放是 Android 侧 StartupImage / 广告服务发起的：停用 `com.hisense.startupimage` + 把
    `persist.sys.video_advert_time` 设为 0 + `com.hisense.service.ad_block=1` 就能拦掉。
    见 [docs/07](docs/07-boot-ad.md)。
+5. **桌面「隐藏」不等于停用。** Aerial 里长按隐藏只是不画图标，应用照样在后台跑、照样占内存。
+   验收只看一条：`adb shell pm list packages -d | grep 包名` 有输出才算真停用。
 
 ## 适用与不适用
 
