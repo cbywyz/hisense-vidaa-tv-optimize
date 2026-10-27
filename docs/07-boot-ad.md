@@ -69,22 +69,38 @@ adb shell settings get global com.hisense.service.ad_block  # 1
 
 重启后验证：两个属性仍然是 `0` / `1`（本机实测保持住了）。
 
-## 结果与判断
+## 实测结果：广告已消失（2026-10-27）
+
+设完上面三步后执行 `adb reboot`，**开机不再出现 15 秒广告，直接进 Aerial 桌面**。
+重启后复查，三个值都保持住了：
+
+```bash
+adb shell getprop persist.sys.video_advert_time          # 0
+adb shell getprop persist.str.video_advert_time          # 0
+adb shell settings get global com.hisense.service.ad_block  # 1
+```
+
+结论：这台机器的开机广告虽然素材来自 `bootad`，但**播放动作是 Android 侧的
+StartupImage / 广告服务发起的**，所以「停用 StartupImage + 时长归零 + 广告屏蔽开关」
+这套组合能把 15 秒拦掉，不需要 root。
+
+> 以上是**软重启（`adb reboot`）**验证的结果。如果想更彻底，可以拔掉电源等 10 秒再插上
+> 做一次冷启动确认——冷启动会完整走一遍 bootloader 流程。本机软重启已经不再播放。
+
+## 换机型/换固件的兜底
 
 | 广告类型 | 能否用 ADB 关 | 说明 |
 | --- | --- | --- |
 | 应用层开屏广告（聚好看、云视听极光等） | ✅ | 停用对应 App 的广告服务，或换桌面 |
-| 系统「开机画面」（StartupImage） | ✅ | `pm disable-user com.hisense.startupimage` |
-| **bootloader 阶段的 bootad 视频** | ❌（无 root） | 素材在 `bootad` 分区，Android 层根本管不到 |
+| 系统「开机画面」（StartupImage） | ✅ | `pm disable-user com.hisense.startupimage` + 时长归零 |
+| bootloader 阶段直接播放的 bootad 视频 | ❌（无 root） | 素材在 `bootad` 分区，Android 层根本管不到 |
 
-所以：
+如果按本文做完**仍然**播广告，那才是 bootloader 直接读 `bootad` 分区播放的情况，
+彻底去掉只有两条路：
 
-- 把 `video_advert_time` 设为 0 后开机**如果还有广告**，那就是 `bootad` 分区的内容，
-  **ADB 关不掉**；
-- 彻底去掉只有两条路：
-  1. **工厂菜单**里找 `Boot Ad` / `AD Switch` / `开机广告` 之类选项（入口见
-     [01-adb.md](01-adb.md) 第 1.2 节的三条路径，进的是同一个工厂菜单）；
-  2. **root 后擦除 `bootad` 分区**（`dd if=/dev/zero of=/dev/block/by-name/bootad`）。
+1. **工厂菜单**里找 `Boot Ad` / `AD Switch` / `开机广告` 之类选项（入口见
+   [01-adb.md](01-adb.md) 第 1.2 节的三条路径，进的是同一个工厂菜单）；
+2. **root 后擦除 `bootad` 分区**（`dd if=/dev/zero of=/dev/block/by-name/bootad`）。
 
 > ⚠️ 第 2 条风险很高：bootad 分区擦错或擦到相邻分区会导致开机卡 logo，而这台机器
 > 没有可用的 fastboot/EDL 救砖手段。**没有完整分区备份之前不要动手。**
