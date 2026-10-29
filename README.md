@@ -106,6 +106,15 @@ sh scripts/restore.sh 192.168.3.205
 - 本文所有包名与命令均在作者机器上实测；**在你自己的机器上执行前，请先跑 `audit.sh` 确认包存在**。
 - 本项目仅供个人折腾记录，不构成任何官方支持。
 
+## 同一系列教程
+
+- [phicomm-t1-android-tv](https://github.com/cbywyz/phicomm-t1-android-tv) —— 斐讯 T1 盒子接入 Home Assistant：adb 遥控面板 / 折叠数字键盘 / **中文输入** / 开机优化。ADB 与 `pm disable-user` 的思路和本仓库同源。
+- [ha-tv-kids-lock](https://github.com/cbywyz/ha-tv-kids-lock) —— 电视家长管控：音量上限锁 / 信号源锁 / 每日配额，接进 HA 之后在 HA 侧做限制。
+- [ha-midea-hualing-ac](https://github.com/cbywyz/ha-midea-hualing-ac) —— 美的/华凌空调接入 Home Assistant
+- [phicomm-aircat-m1](https://github.com/cbywyz/phicomm-aircat-m1) —— 斐讯悟空 M1 空气检测仪本地复活
+
+---
+
 ## 许可
 
 MIT
