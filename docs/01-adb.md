@@ -201,3 +201,13 @@ tcp6  0  0 :::5555  :::*  LISTEN
 
 > 小坑：Windows 上如果每条命令都在新的 shell 里跑，`adb connect` 建立的是**当前 adb server**
 > 的连接状态，server 一重启就丢了。要么保持同一个终端，要么把 `connect` 和后续命令写在同一条命令里。
+
+## 6. 和 Home Assistant 长期共存（单会话陷阱）
+
+如果你打算把这台海信也接进 Home Assistant（例如套用 [ha-tv-kids-lock](https://github.com/cbywyz/ha-tv-kids-lock) 的管控），用 HA 的 **Android TV 集成**通过 5555 连电视——注意 **adbd 是单会话的**：
+
+- 同一时刻只能有一个 adb 客户端握着连接。电脑端 `adb connect` 上来，HA 的 androidtv 集成会被立刻 `Connection reset by peer`、实体变 `unknown`、所有 ADB 自动化空转。
+- **排障或抓 `dumpsys` 用完，立刻 `adb kill-server`** 让出会话；HA 侧重连一般 10 秒左右自愈，不行就 `homeassistant.reload_config_entry`（androidtv 条目）重载一次。
+- 所有 adb 命令尽量走 HA 通道（`androidtv.adb_command` 指向 `media_player.*` 实体），别在电脑上常驻一个 adb。
+
+> 完整的端口固化 + 启用验收 + 单会话排查，见 ha-tv-kids-lock 的 [docs/keep-adb-alive.md](https://github.com/cbywyz/ha-tv-kids-lock/blob/main/docs/keep-adb-alive.md)。
